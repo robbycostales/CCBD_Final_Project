@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- PAGE settings -->
+  <title>SuperNotes</title>
+  <!-- CSS dependencies -->
+  <link rel="stylesheet" href="aquamarine.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css">
+  <!-- Script: Make my navbar transparent when the document is scrolled to top -->
+  <script src="js/navbar-ontop.js"></script>
+  <!-- Script: Animated entrance -->
+  <script src="js/animate-in.js"></script>
+</head>
+
+<body class="text-center">
+  <div class="modal" style="" id="login">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header" style="" id="login">
+          <h5 class="modal-title">Sign In</h5> <button type="button" class="close" data-dismiss="modal"> <span>×</span> </button>
+        </div>
+        <div class="modal-body">
+          <form id="c_form-h" class="">
+            <div class="form-group row"> <label for="inputmailh" class="col-2 col-form-label">E-mail</label>
+              <div class="col-10">
+                <input type="email" class="form-control" id="inputmailh" placeholder="mail@example.com"> </div>
+            </div>
+            <div class="form-group row"> <label for="inputpasswordh" class="col-2 col-form-label">Password</label>
+              <div class="col-10">
+                <input type="password" class="form-control" id="inputpasswordh" placeholder="Password"> </div>
+            </div>
+            <button type="submit" class="btn btn-primary" data-toggle="modal">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer"> <button type="button" class="btn btn-link">Register</button> <button type="button" class="btn btn-secondary" data-dismiss="modal" data-toggle="modal">Close</button> </div>
+      </div>
+    </div>
+  </div>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-md fixed-top bg-dark navbar-dark" style="">
+    <div class="container">
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbar2SupportedContent" aria-controls="navbar2SupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
+      <div class="collapse navbar-collapse justify-content-center" id="navbar2SupportedContent">
+        <ul class="navbar-nav">
+          <li class="nav-item mx-2" style="">
+            <a class="nav-link" href="#about">About</a>
+          </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link" href="#collaborators">Collaborators</a>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="#upload">Upload</a></li>
+        </ul>
+      </div>
+    </div><a class="btn btn-default navbar-btnbtn navbar-btn mx-2 text-white btn-outline-light" data-toggle="modal" href="#login">Sign in</a>
+  </nav>
+  <!-- Cover -->
+  <div class="d-flex align-items-center section-aquamarine py-5 cover" style="	background-image: url(images/notes.jpg);	background-position: left top;	background-size: 150%;	background-repeat: repeat;">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-white mt-5">
+          <h1 class="display-2 d-none d-md-block">SuperNotes</h1>
+          <h1 class="display-4 d-block d-md-none">Conference Pingendo</h1>
+          <p class="">Note taking made easy.</p>
+          <a class="btn btn-lg mt-4 btn-outline-light" data-toggle="modal" href="#login">Login</a><i class="d-block fa fa-angle-down pt-5 fa-3x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Parallax section -->
+  <div class="py-5 section-parallax" style="	background-image: url(images/coffee.jpg);	background-position: top left;	background-size: 100%;	background-repeat: repeat;" id="about">
+    <div class="container my-5 bg-light p-4">
+      <div class="row mx-auto">
+        <div class="col-md-12">
+          <h1 class="mb-3">About this Project</h1>
+          <p class="">Our project’s mission is to create an application that assists students with note taking, particularly those with hearing-related disabilities. The core functionality of this app is to record lecture notes and translate audio input into text that can then be bookmarked, commented on, and potentially manipulated by the student in other ways as well. The desired audience would be all students, but can be used in a broader sense. We will first start off with a feature to upload saved audio files to then analyze and convert to text. With time permitting, we will try to create real time analytics.</p>
+          <a href="#upload" class="btn btn-outline-primary btn-lg m-2">Upload</a>
+          <a class="btn btn-primary btn-lg m-2" href="#login" data-toggle="modal">Sign In</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Speakers -->
+  <div class="py-5 bg-light" id="collaborators
+collaborators" style="">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+          <h1 contenteditable="true" id="collaborators">Collaborators</h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6 col-lg-3">
+          <a href="#">
+            <img src="images/najlaa_bw.jpg" class="center-block img-fluid my-3 rounded-circle" width="300">
+            <h3 class="mb-0"><b>Najlaa Bouras</b></h3>
+            <p class="text-muted"> nb2749@columbia.edu</p>
+          </a>
+        </div>
+        <div class="col-6 col-lg-3 animate-in-left">
+          <a href="#">
+            <img src="images/robby_bw.jpg" class="center-block img-fluid my-3 rounded-circle bg-dark" width="300">
+            <h3 class="mb-0" style=""><b>Robert Constales</b></h3>
+            <p class="text-muted">rsc2156@columbia.edu</p>
+          </a>
+        </div>
+        <div class="col-6 col-lg-3 animate-in-right">
+          <a href="#">
+            <img src="images/nana_bw.png" class="center-block img-fluid my-3 rounded-circle" width="300" style="">
+            <h3 class="mb-0"><b>Nana Pang</b></h3>
+            <p class="text-muted">np2630@columbia.edu</p>
+          </a>
+        </div>
+        <div class="col-6 col-lg-3 animate-in-left">
+          <a href="#">
+            <img src="images/christine_bw.jpg" class="center-block img-fluid my-3 rounded-circle" width="300" >
+            <h3 class="mb-0"><b>Christine Shue</b></h3>
+            <p class="text-muted">cs3805@columbia.edu</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Schedule -->
+  <div class="py-5 section-parallax" style="" id="upload">
+    <div class="container section-aquamarine">
+      <div class="row">
+        <div class="col-md-12">
+          <h1 class="text-white mt-4">Upload</h1>
+        </div>
+      </div>
+      <div class="row text-left text-dark">
+        <div class="col-md-12 justify-content-center align-items-center">
+          <form class="form-inline">
+            <div class="input-group">
+              <input type="file" class="form-control justify-content-center align-items-center flex-row" placeholder="Your file" required="required" name="file" id="file">
+              <div class="input-group-append"><button class="btn btn-primary align-items-center" type="button">Upload</button></div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Sponsor logos -->
+  <!-- Call to action -->
+  <!-- Footer -->
+  <footer class="text-md-left text-center p-4 bg-dark text-light">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <p class="text-muted">Fall 2018&nbsp;COMS 6998 Final Project</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!-- JavaScript dependencies -->
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  <!-- Script: Smooth scrolling between anchors in the same page -->
+  <script src="js/smooth-scroll.js"></script>
+</body>
+
+</html>
