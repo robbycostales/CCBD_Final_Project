@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title>Rich text editor</title>
+        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
+        <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+          <a class="navbar-brand">SuperNotes</a>
+          <form class="form-inline">
+            <!-- <a href="notes.html" class="btn btn-outline-info my-2 my-sm-0">All Notes</a></a>
+            &nbsp&nbsp -->
+            <button id="pause" class="btn btn-outline-info my-2 my-sm-0" type="button" onclick="togglePause()"><i class="far fa-play-circle fa-lg"></i> Stream</button>
+            &nbsp&nbsp
+            <button id="save" class="btn btn-outline-info my-2 my-sm-0" type="button" onclick="uploadToS3(prompt('Save as:','.html'));"><i class="far fa-save fa-lg"></i> Save</button>
+
+          </form>
+        </nav>
+
+    </head>
+    <body onload="enableEditMode();loadFiles();">
+        <br />
+        <div class="container" style="textAlign">
+
+            <div id="toolbar" align="center">
+                <button onclick="execCmd('bold');" class="btn btn-sm"><i class="fa fa-bold"></i></button>
+                <button onclick="execCmd('italic');" class="btn btn-sm"><i class="fa fa-italic"></i></button>
+                <button onclick="execCmd('underline');" class="btn btn-sm"><i class="fa fa-underline"></i></button>
+                <button onclick="execCmd('strikeThrough');" class="btn btn-sm"><i class="fa fa-strikethrough"></i></button>
+                <button onclick="execCmd('justifyLeft');" class="btn btn-sm"><i class="fa fa-align-left"></i></button>
+                <button onclick="execCmd('justifyCenter');" class="btn btn-sm"><i class="fa fa-align-center"></i></button>
+                <button onclick="execCmd('justifyRight');" class="btn btn-sm"><i class="fa fa-align-right"></i></button>
+                <button onclick="execCmd('justifyFull');" class="btn btn-sm"><i class="fa fa-align-justify"></i></button>
+                <button onclick="execCmd('cut');" class="btn btn-sm"><i class="fa fa-cut"></i></button>
+                <button onclick="execCmd('copy');" class="btn btn-sm"><i class="fa fa-copy"></i></button>
+                <button onclick="execCmd('indent');" class="btn btn-sm"><i class="fa fa-indent"></i></button>
+                <button onclick="execCmd('outdent');" class="btn btn-sm"><i class="fa fa-outdent"></i></button>
+                <button onclick="execCmd('subscript');" class="btn btn-sm"><i class="fa fa-subscript"></i></button>
+                <button onclick="execCmd('superscript');" class="btn btn-sm"><i class="fa fa-subscript"></i></button>
+                <button onclick="execCmd('undo');" class="btn btn-sm"><i class="fa fa-undo"></i></button>
+                <button onclick="execCmd('redo');" class="btn btn-sm"><i class="fa fa-redo"></i></button>
+                <button onclick="execCmd('insertUnorderedList');" class="btn btn-sm"><i class="fas fa-list-ul"></i></button>
+                <button onclick="execCmd('insertOrderedList');" class="btn btn-sm"><i class="fa fa-list-ol"></i></button>
+                <button onclick="execCmd('insertParagraph');" class="btn btn-sm"><i class="fa fa-paragraph"></i></button>
+                <select class="btn btn-sm" onchange="execCommandWithArg('formatBlock', this.value);">
+                    <option selected>Heading</option>
+                    <option value="H1">H1</option>
+                    <option value="H2">H2</option>
+                    <option value="H3">H3</option>
+                    <option value="H4">H4</option>
+                    <option value="H5">H5</option>
+                    <option value="H6">H6</option>
+                </select>
+                <button onclick="execCmd('insertHorizonalRule');" class="btn btn-sm">HR</button>
+                <button onclick="toggleSource();" class="btn btn-sm"><i class="fa fa-code"></i></button>
+                <button onclick="toggleEdit();" class="btn btn-sm">Toggle Edit</button>
+                <br  />
+                <select class="btn" onchange="execCommandWithArg('fontName', this.value);">
+                    <option selected>Font</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Comic Sans MS">Comic Sans MS</option>
+                    <option value="Courier">Courier</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Tahoma">Tahoma</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Verdana">Verdana</option>
+                </select>
+                <select class="btn" onchange="execCommandWithArg('fontSize', this.value);">
+                    <option selected>Size</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                </select>
+                Text Color: <input type="color" class="btn" onclick="execCommandWithArg('foreColor', this.value);"/>
+                Background: <input type="color" class="btn" onclick="execCommandWithArg('hiliteColor', this.value);"/>
+                <button onclick="execCommandWithArg('createLink', prompt('Enter a URL','http://'));" class="btn"><i class="fa fa-link"></i></button>
+                <button onclick="execCmd('unlink');" class="btn"><i class="fa fa-unlink"></i></button>
+                <button onclick="execCommandWithArg('insertImage', prompt('Enter the image URL',''));" class="btn"><i class="far fa-image"></i></button>
+                <button onclick="execCmd('selectAll');" class="btn">Select All</button>
+                 <!-- onchange="editFile(this.value);" -->
+                <select id="file" class="btn" onchange="editFile(this.value)">
+                    <option text="Choose File to Edit..." key="default">Choose File to Edit...</option>
+                </select>
+
+            </div>
+            <iframe name="textField" style="width:1100px; height:3300px; wordwrap:'break-word'">
+            </iframe>
+
+        </div>
+        <script type="text/javascript">
+
+            var showingSourceCode = false;
+            var isInEditMode = true;
+            function enableEditMode () {
+                textField.document.designMode = 'On';
+            }
+            function execCmd(command) {
+                textField.document.execCommand(command, false, null);
+            }
+
+            function execCommandWithArg(command,arg) {
+                textField.document.execCommand(command, false, arg);
+            }
+
+            function toggleSource() {
+                if(showingSourceCode) {
+                    textField.document.getElementsByTagName('body')[0].innerHTML = textField.document.getElementsByTagName('body')[0].textContent;
+                    showingSourceCode = false;
+                } else {
+                    textField.document.getElementsByTagName('body')[0].textContent = textField.document.getElementsByTagName('body')[0].innerHTML;
+                    showingSourceCode = true;
+                }
+            }
+
+            function toggleEdit() {
+                if(isInEditMode) {
+                    textField.document.designMode = 'Off';
+                    isInEditMode = false;
+                } else {
+                    textField.document.designMode = 'On';
+                    isInEditMode = true;
+                }
+            }
+        </script>
+        <script type="text/javascript" src="apigClient.js"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="lib/axios/dist/axios.standalone.js"></script>
+        <script type="text/javascript" src="lib/CryptoJS/rollups/hmac-sha256.js"></script>
+        <script type="text/javascript" src="lib/CryptoJS/rollups/sha256.js"></script>
+        <script type="text/javascript" src="lib/CryptoJS/components/hmac.js"></script>
+        <script type="text/javascript" src="lib/CryptoJS/components/enc-base64.js"></script>
+        <script type="text/javascript" src="lib/url-template/url-template.js"></script>
+        <script type="text/javascript" src="lib/apiGatewayCore/sigV4Client.js"></script>
+        <script type="text/javascript" src="lib/apiGatewayCore/apiGatewayClient.js"></script>
+        <script type="text/javascript" src="lib/apiGatewayCore/simpleHttpClient.js"></script>
+        <script type="text/javascript" src="lib/apiGatewayCore/utils.js"></script>
+        <script type="text/javascript" src="./editor.js"></script>
+
+    </body>
+</html>
