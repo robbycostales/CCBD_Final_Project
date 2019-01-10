@@ -6,6 +6,8 @@ var href;
 var roomCode = null;
 var bucketRegion = 'us-east-1';
 var file;
+
+
 var IdentityPoolId = 'us-east-1:ced528e8-9c58-40dd-b78b-cc8e0ed80d61';
 AWS.config.update({
     region: bucketRegion,
