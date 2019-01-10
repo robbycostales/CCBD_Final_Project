@@ -51,7 +51,7 @@ apigClientFactory.newClient = function (config) {
         config.defaultAcceptType = 'application/json';
     }
 
-    
+
     // extract endpoint and path from url
     var invokeUrl = 'https://0tmbn5z7y4.execute-api.us-east-1.amazonaws.com/speechtotext';
     var endpoint = /(^https?:\/\/[^\/]+)/g.exec(invokeUrl)[1];
@@ -80,14 +80,14 @@ apigClientFactory.newClient = function (config) {
     };
 
     var apiGatewayClient = apiGateway.core.apiGatewayClientFactory.newClient(simpleHttpClientConfig, sigV4ClientConfig);
-    
-    
-    
+
+
+
     apigClient.gettextPost = function (params, body, additionalParams) {
         if(additionalParams === undefined) { additionalParams = {}; }
-        
+
         apiGateway.core.utils.assertParametersDefined(params, [], ['body']);
-        
+
         var gettextPostRequest = {
             verb: 'post'.toUpperCase(),
             path: pathComponent + uritemplate('/gettext').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
@@ -95,17 +95,17 @@ apigClientFactory.newClient = function (config) {
             queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
             body: body
         };
-        
-        
+
+
         return apiGatewayClient.makeRequest(gettextPostRequest, authType, additionalParams, config.apiKey);
     };
-    
-    
+
+
     apigClient.gettextOptions = function (params, body, additionalParams) {
         if(additionalParams === undefined) { additionalParams = {}; }
-        
+
         apiGateway.core.utils.assertParametersDefined(params, [], ['body']);
-        
+
         var gettextOptionsRequest = {
             verb: 'options'.toUpperCase(),
             path: pathComponent + uritemplate('/gettext').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
@@ -113,17 +113,17 @@ apigClientFactory.newClient = function (config) {
             queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
             body: body
         };
-        
-        
+
+
         return apiGatewayClient.makeRequest(gettextOptionsRequest, authType, additionalParams, config.apiKey);
     };
-    
-    
+
+
     apigClient.sendtextPost = function (params, body, additionalParams) {
         if(additionalParams === undefined) { additionalParams = {}; }
-        
+
         apiGateway.core.utils.assertParametersDefined(params, [], ['body']);
-        
+
         var sendtextPostRequest = {
             verb: 'post'.toUpperCase(),
             path: pathComponent + uritemplate('/sendtext').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
@@ -131,17 +131,17 @@ apigClientFactory.newClient = function (config) {
             queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
             body: body
         };
-        
-        
+
+
         return apiGatewayClient.makeRequest(sendtextPostRequest, authType, additionalParams, config.apiKey);
     };
-    
-    
+
+
     apigClient.sendtextOptions = function (params, body, additionalParams) {
         if(additionalParams === undefined) { additionalParams = {}; }
-        
+
         apiGateway.core.utils.assertParametersDefined(params, [], ['body']);
-        
+
         var sendtextOptionsRequest = {
             verb: 'options'.toUpperCase(),
             path: pathComponent + uritemplate('/sendtext').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
@@ -149,11 +149,11 @@ apigClientFactory.newClient = function (config) {
             queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
             body: body
         };
-        
-        
+
+
         return apiGatewayClient.makeRequest(sendtextOptionsRequest, authType, additionalParams, config.apiKey);
     };
-    
+
 
     return apigClient;
 };
