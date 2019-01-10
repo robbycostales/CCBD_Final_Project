@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SuperNotes Record</title>
+    <meta name="viewport" content="width=device-width">
+
+    <!-- Link amazon sdk, get AWS var -->
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
+
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+<body onload="setRoomCode()">
+    <header>
+        <!-- <h1>MediaCapture, MediaRecorder and Streams API</h1> -->
+    </header>
+    <main>
+        <!-- <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Impedit molestiae itaque facere totam saepe tempore esse temporibus, quae reprehenderit aliquid iusto ea laborum, iure eligendi odio exercitationem sapiente illum quos.</p> -->
+
+        <!-- <p> Enter room code below </p>
+        <input id="roomCode"></input> -->
+        <div class="center-screen">
+            <h1>SUPERNOTES AUDIO RECORDER</h1>
+            <h2 id='roomCode'>ROOM CODE : </h2>
+            <div class="stopwatch"></div>
+            <button id="btnStart" class="btn btn-error btn-circle btn-xl"><i class="fas fa-microphone fa-lg"></i></button><br/>
+            <button id="btnStop" style="display: None">STOP RECORDING</button>
+        </div>
+        <video></video>
+        <!-- <audio controls></audio>
+
+        <audio id="aud2" controls></audio> -->
+
+        <!-- could save to canvas and do image manipulation and saving too -->
+    </main>
+    <script>
+
+        var count = 0
+        var isActive = 0;
+        var roomCode = null;
+        // // var fs = require('fs')
+        // cloudconvert = new (require('cloudconvert'))('KEiOmV7Rr1RMQY1tRKDC6SG8tqklkXKszJ5FjBA7dssUdueAn4zhSBJ0jSFXTSO6', 'audio/ogg', 'audio/wav')
+        function setRoomCode() {
+            if (roomCode == null) {
+                roomCode = prompt('Enter Room Code:','');
+                document.getElementById("roomCode").innerHTML = 'ROOM CODE : ' + String(roomCode)
+            }
+        }
+        function getRoomCode(){
+          return roomCode
+
+        }
+
+        var bucketName = 'bucket-boi-input';
+        var bucketRegion = 'us-east-1';
+        // robby's 'final' identity pool id
+        var IdentityPoolId = 'us-east-1:8e7a7535-f70c-4473-83c6-f327d2092212';
+
+        console.log("help");
+        AWS.config.update({
+          region: bucketRegion,
+          credentials: new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: IdentityPoolId
+          })
+        });
+
+        var s3 = new AWS.S3({
+          apiVersion: '2006-03-01',
+          params: {Bucket: bucketName}
+        });
+
+
+        let constraintObj = {
+            audio: true,
+            // video: {
+            //     facingMode: "user",
+            //     width: { min: 640, ideal: 1280, max: 1920 },
+            //     height: { min: 480, ideal: 720, max: 1080 }
+            // }
+        };
+        // width: 1280, height: 720  -- preference only
+        // facingMode: {exact: "user"}
+        // facingMode: "environment"
+
+        //handle older browsers that might implement getUserMedia in some way
+        if (navigator.mediaDevices === undefined) {
+            navigator.mediaDevices = {};
+            navigator.mediaDevices.getUserMedia = function(constraintObj) {
+                let getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                if (!getUserMedia) {
+                    return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+                }
+                return new Promise(function(resolve, reject) {
+                    getUserMedia.call(navigator, constraintObj, resolve, reject);
+                });
+            }
+        }else{
+            navigator.mediaDevices.enumerateDevices()
+            .then(devices => {
+                devices.forEach(device=>{
+                    console.log(device.kind.toUpperCase(), device.label);
+                    //, device.deviceId
+                })
+            })
+            .catch(err=>{
+                console.log(err.name, err.message);
+            })
+        }
+        navigator.mediaDevices.getUserMedia(constraintObj)
+        .then(function(mediaStreamObj) {
+            // ENTER MAIN FUNCTIONALITY
+            //connect the media stream to the first audio element
+            // let audio = document.querySelector('audio');
+            // if ("srcObject" in audio) {
+            //     audio.srcObject = mediaStreamObj;
+            // } else {
+            //     //old version
+            //     audio.src = window.URL.createObjectURL(mediaStreamObj);
+            // }
+            //
+            // audio.onloadedmetadata = function(ev) {
+            //     //show in the audio element what is being captured by the webcam
+            //     audio.play();
+            // };
+
+            //add listeners for saving audio/audio
+            let start = document.getElementById('btnStart');
+            let stop = document.getElementById('btnStop');
+            let audSave = document.getElementById('aud2');
+            var options = {
+              // audioBitsPerSecond : 128000,
+              // videoBitsPerSecond : 2500000,
+              mimeType : 'audio/ogg'
+            }
+
+            let mediaRecorder = new MediaRecorder(mediaStreamObj, options) //, options);
+            let chunks = [];
+
+            var id
+            var record = false;
+
+            start.addEventListener('click', (ev)=>{
+                if (!record){
+                    record = true;
+                    console.log('clicked')
+                    mediaRecorder.start();
+                    window.setInterval(function(){
+                      mediaRecorder.stop();
+                      mediaRecorder.start();
+                      if (!isActive){
+                        clearInterval()
+                      }
+                    }, 13000);
+
+                    console.log(mediaRecorder.state);
+                    stopwatch.start();
+                    document.getElementById('btnStart').classList.add('btn-primary');
+                    document.getElementById('btnStart').classList.add('pulse-button');
+                } else {
+                    record = false;
+                    console.log('setInactive')
+                    isActive = 0;
+                    mediaRecorder.stop();
+                    console.log(mediaRecorder.state);
+                    stopwatch.stop();
+                    document.getElementById('btnStart').classList.remove('btn-primary');
+                    document.getElementById('btnStart').classList.remove('pulse-button');
+                }
+            })
+            stop.addEventListener('click', (ev)=>{
+                console.log('setInactive')
+                isActive = 0;
+                mediaRecorder.stop();
+                console.log(mediaRecorder.state);
+            });
+            mediaRecorder.ondataavailable = function(ev) {
+                chunks.push(ev.data);
+            }
+            mediaRecorder.onstop = (ev)=>{
+                console.log("stopped")
+                // let blob = new Blob(chunks, { 'type' : 'video/mp4;' });
+                let blob = new Blob(chunks, { 'type' : 'audio/ogg;' });
+                chunks = [];
+                let audioURL = window.URL.createObjectURL(blob);
+                // set playback audio source
+                // audSave.src = audioURL;
+
+
+
+
+                // get roomcode
+                let roomCode = getRoomCode()
+                //UPLOAD TO BUCKET
+                count += 1;
+                var params = {
+                              Bucket: "bucket-boi-input",
+                              Key: "input/data" + String(count) + "-"+roomCode+".ogg",
+                              Body: blob,//this hast to be a string
+                              // Body: audioURL,
+                              // ACL: 'public-read',
+                              // ContentType: 'audio/wav',
+                          };
+                s3.putObject(params, function(err,data){ console.log('uploaded. error:'); console.log(err); } );
+
+               //  const params = {
+               //     Bucket: 'bucket-boi-input', // pass your bucket name
+               //     Key: "data-"+roomCode+".mp3", // file will be saved as testBucket/contacts.csv
+               //     Body: blob,
+               //     ContentType: 'audio/mp3'
+               // };
+               // s3.upload(params, function(s3Err, data) {
+               //     if (s3Err) throw s3Err
+               //     console.log(`File uploaded successfully at ${data.Location}`)
+               // });
+
+
+
+                // chunks = [];
+                // let audioURL = window.URL.createObjectURL(blob);
+                // // set playback audio source
+                // audSave.src = audioURL;
+            }
+
+            function runRecLoop (){
+
+
+
+            }
+
+        })
+        .catch(function(err) {
+
+            console.log(err.name, err.message);
+        });
+
+
+
+
+
+        /*********************************
+        getUserMedia returns a Promise
+        resolve - returns a MediaStream Object
+        reject returns one of the following errors
+        AbortError - generic unknown cause
+        NotAllowedError (SecurityError) - user rejected permissions
+        NotFoundError - missing media track
+        NotReadableError - user permissions given but hardware/OS error
+        OverconstrainedError - constraint audio settings preventing
+        TypeError - audio: false, video: false
+        *********************************/
+    </script>
+    <style>
+        .btn-circle.btn-xl {
+        width: 70px;
+        height: 70px;
+        padding: 10px 16px;
+        border-radius: 35px;
+        font-size: 24px;
+        line-height: 1.33;
+        }
+
+        .btn-circle {
+        width: 30px;
+        height: 30px;
+        padding: 6px 0px;
+        border-radius: 15px;
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.42857;
+        }
+        .stopwatch {
+          font-size: 10vw;
+          height: 100%;
+          line-height: 50vh;
+          text-align: center;
+        }
+        .center-screen {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          min-height: 100vh;
+        }
+        .pulse-button {
+              position: relative;
+              width: 100px;
+              height: 100px;
+              border: none;
+              box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); */
+              border-radius: 25%;
+              background-color: #007bff;
+              background-size:cover;
+              background-repeat: no-repeat;
+              cursor: pointer;
+              -webkit-animation: pulse 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
+              -moz-animation: pulse 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
+              -ms-animation: pulse 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
+              animation: pulse 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
+            }
+
+            @-webkit-keyframes pulse {to {box-shadow: 0 0 0 45px rgba(0, 123, 255, 0);}}
+            @-moz-keyframes pulse {to {box-shadow: 0 0 0 45px rgba(0, 123, 255, 0);}}
+            @-ms-keyframes pulse {to {box-shadow: 0 0 0 45px rgba(0, 123, 255, 0);}}
+            @keyframes pulse {to {box-shadow: 0 0 0 45px rgba(0, 123, 255, 0);}}
+
+        </style>
+        <script>
+        class Stopwatch {
+        constructor(display, results) {
+            this.running = false;
+            this.display = display;
+            this.results = results;
+            this.laps = [];
+            this.reset();
+            this.print(this.times);
+        }
+
+        reset() {
+            this.times = [ 0, 0, 0 ];
+        }
+
+        start() {
+            if (!this.time) this.time = performance.now();
+            if (!this.running) {
+                this.running = true;
+                requestAnimationFrame(this.step.bind(this));
+            }
+        }
+
+        lap() {
+            let times = this.times;
+            let li = document.createElement('li');
+            li.innerText = this.format(times);
+            this.results.appendChild(li);
+        }
+
+        stop() {
+            this.running = false;
+            this.time = null;
+        }
+
+        restart() {
+            if (!this.time) this.time = performance.now();
+            if (!this.running) {
+                this.running = true;
+                requestAnimationFrame(this.step.bind(this));
+            }
+            this.reset();
+        }
+
+        clear() {
+            clearChildren(this.results);
+        }
+
+        step(timestamp) {
+            if (!this.running) return;
+            this.calculate(timestamp);
+            this.time = timestamp;
+            this.print();
+            requestAnimationFrame(this.step.bind(this));
+        }
+
+        calculate(timestamp) {
+            var diff = timestamp - this.time;
+            // Hundredths of a second are 100 ms
+            this.times[2] += diff / 10;
+            // Seconds are 100 hundredths of a second
+            if (this.times[2] >= 100) {
+                this.times[1] += 1;
+                this.times[2] -= 100;
+            }
+            // Minutes are 60 seconds
+            if (this.times[1] >= 60) {
+                this.times[0] += 1;
+                this.times[1] -= 60;
+            }
+        }
+
+        print() {
+            this.display.innerText = this.format(this.times);
+        }
+
+        format(times) {
+            return `\
+    ${pad0(times[0], 2)}:\
+    ${pad0(times[1], 2)}:\
+    ${pad0(Math.floor(times[2]), 2)}`;
+        }
+    }
+
+    function pad0(value, count) {
+        var result = value.toString();
+        for (; result.length < count; --count)
+            result = '0' + result;
+        return result;
+    }
+
+    function clearChildren(node) {
+        while (node.lastChild)
+            node.removeChild(node.lastChild);
+    }
+
+    let stopwatch = new Stopwatch(
+        document.querySelector('.stopwatch'),
+        document.querySelector('.results'));
+        </script>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+</body>
+</html>
